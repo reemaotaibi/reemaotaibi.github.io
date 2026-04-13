@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reema Alotaibi — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(120,100,255,0.15);
+    --border2: rgba(120,100,255,0.3);
+    --accent: #7c6cfa;
+    --accent2: #a78bfa;
+    --accent3: #c4b5fd;
+    --text: #e8e4ff;
+    --text2: #9d97c4;
+    --text3: #5a5480;
+    --green: #4ade80;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* grid background */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(120,100,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,100,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* glow orb */
+  .orb {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,108,250,0.08) 0%, transparent 70%);
+    top: -200px;
+    right: -200px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .orb2 {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,222,128,0.04) 0%, transparent 70%);
+    bottom: -100px;
+    left: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* layout */
+  .layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 100vh;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* sidebar */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 48px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    overflow-y: auto;
+    animation: fadeInLeft 0.7s ease both;
+  }
+
+  @keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--accent2);
+    text-transform: uppercase;
+  }
+
+  .dot-live {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .profile-name {
+    font-family: var(--sans);
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .profile-name span {
+    color: var(--accent);
+  }
+
+  .profile-title {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-top: 6px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .project-card {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: rgba(124,108,250,0.04);
+    cursor: default;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .project-card:hover {
+    border-color: var(--border2);
+    background: rgba(124,108,250,0.08);
+  }
+
+  .project-name {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent3);
+    margin-bottom: 4px;
+  }
+
+  .project-desc {
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .contact-row a {
+    color: var(--accent2);
+    text-decoration: none;
+  }
+
+  .contact-row a:hover { text-decoration: underline; }
+
+  /* chat area */
+  .chat-area {
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.7s ease 0.2s both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chat-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .chat-title {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+
+  .chat-title span { color: var(--accent2); }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .msg-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .msg-wrap.user { align-items: flex-end; }
+  .msg-wrap.bot { align-items: flex-start; }
+
+  .msg-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 0 4px;
+  }
+
+  .bubble {
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.7;
+    max-width: 72%;
+  }
+
+  .msg-wrap.user .bubble {
+    background: rgba(124,108,250,0.15);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    border-bottom-right-radius: 1px;
+  }
+
+  .msg-wrap.bot .bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-bottom-left-radius: 1px;
+  }
+
+  /* typing */
+  .typing-dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 14px 16px;
+  }
+
+  .typing-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text3);
+    animation: blink 1.2s infinite;
+  }
+
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%, 60%, 100% { opacity: 0.2; }
+    30% { opacity: 1; }
+  }
+
+  /* chips */
+  .chips {
+    padding: 12px 28px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+  }
+
+  .chip {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: rgba(124,108,250,0.07);
+  }
+
+  /* input */
+  .input-row {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .prompt-prefix {
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  #user-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    caret-color: var(--accent);
+  }
+
+  #user-input::placeholder { color: var(--text3); }
+
+  #send-btn {
+    padding: 8px 18px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  #send-btn:hover {
+    background: rgba(124,108,250,0.12);
+    border-color: var(--accent);
+  }
+
+  /* key warning */
+  #key-banner {
+    background: rgba(255,180,0,0.07);
+    border: 1px solid rgba(255,180,0,0.2);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #fbbf24;
+    margin: 0 28px 0;
+    display: none;
+  }
+
+  /* mobile */
+  @media (max-width: 700px) {
+    .layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      height: auto;
+      min-height: 100vh;
+    }
+    .sidebar {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 28px 20px;
+      gap: 20px;
+    }
+    .chat-area { height: 70vh; }
+    .bubble { max-width: 90%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb"></div>
+<div class="orb2"></div>
+
+<div class="layout">
+
+  <!-- sidebar -->
+  <aside class="sidebar">
+    <div>
+      <div class="badge"><span class="dot-live"></span> open to opportunities</div>
+    </div>
+
+    <div>
+      <div class="profile-name"><span>Reema</span><br>Alotaibi</div>
+      <div class="profile-title">CS Student · Quantum &amp; AI</div>
+    </div>
+
+    <div>
+      <div class="section-label">// projects</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="project-card">
+          <div class="project-name">⚛ QORRECT</div>
+          <div class="project-desc">Quantum noise correction via transformer neural networks</div>
+        </div>
+        <div class="project-card">
+          <div class="project-name">◈ ADA</div>
+          <div class="project-desc">Desktop IDE preserving dead programming languages</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">// skills</div>
+      <div class="tag-list">
+        <span class="tag">Python</span>
+        <span class="tag">Quantum Computing</span>
+        <span class="tag">AI/ML</span>
+        <span class="tag">Linux</span>
+        <span class="tag">Oracle DB</span>
+        <span class="tag">Systems Programming</span>
+        <span class="tag">UI/UX</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">// contact</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="contact-row">→ <a href="/cdn-cgi/l/email-protection#6517000008044b044b0a11040c070c250208040c094b060a08"><span class="__cf_email__" data-cfemail="97e5f2f2faf6b9f6b9f8e3f6fef5fed7f0faf6fefbb9f4f8fa">[email&#160;protected]</span></a></div>
+        <div class="contact-row">→ <a href="https://github.com/reemaotaibi" target="_blank">github.com/reemaotaibi</a></div>
+        <div class="contact-row">→ Khobar, Saudi Arabia</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- chat -->
+  <main class="chat-area">
+    <div class="chat-header">
+      <div class="chat-title">// ask about <span>reema</span></div>
+      <div style="font-size:11px;color:var(--text3);">AI-powered · RAG portfolio</div>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div id="key-banner">
+      ⚠ Add your Anthropic API key: open index.html and replace <code>YOUR_API_KEY_HERE</code> with your key.
+    </div>
+
+    <div class="chips">
+      <button class="chip" data-msg="What are her best projects?">→ best projects?</button>
+      <button class="chip" data-msg="What is her quantum computing experience?">→ quantum experience?</button>
+      <button class="chip" data-msg="Is she a good hire?">→ is she a good hire?</button>
+      <button class="chip" data-msg="How can I contact Reema?">→ contact info?</button>
+    </div>
+
+    <div class="input-row">
+      <span class="prompt-prefix">&gt;_</span>
+      <input id="user-input" type="text" placeholder="ask me anything about Reema..."  />
+      <button id="send-btn" >send</button>
+    </div>
+  </main>
+
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const SYSTEM = `You are an AI portfolio assistant representing Reema Alotaibi to recruiters and companies. Be confident, enthusiastic, and concise. Speak in third person. Keep answers to 2-4 sentences unless deep detail is needed.
+
+ABOUT REEMA:
+Name: Reema Alotaibi
+Email: reema.a.otaibi@gmail.com | Phone: +966 580150033 | Location: Khobar, Saudi Arabia
+
+EDUCATION:
+- Bachelor's in Computer Science, Prince Mohammed bin Fahd University (2022–present), Khobar, Saudi Arabia
+- Associate's in Arts, Valencia College (2019–2021), Orlando, USA
+
+EXPERIENCE:
+- Student Assistant, Campus Life, PMU (Aug 2023–Jan 2025)
+- AI Internship, Center for AI, PMU (Sep–Dec 2024)
+- Speaker Coordinator, Google Cloud Developers Community (Apr–Dec 2025)
+- Associate in Technology, Going Global Ventures (Apr–Dec 2025, Remote)
+
+PROJECTS:
+1. QORRECT (Oct 2025–Apr 2026): Quantum Noise Correction via Transformer Neural Networks. Uses a transformer-based AI model to detect and correct noise in quantum circuits. Highly advanced project at the intersection of quantum computing and deep learning.
+2. ADA (Feb–Apr 2026): Desktop IDE that preserves and runs legacy/dead programming languages. Built to keep computer science history alive. Shows deep passion for systems programming and CS culture.
+
+SKILLS: Problem-solving, Leadership, Communication, Team Collaboration, Critical Thinking. Bilingual: Arabic (native) + English (fluent).
+
+CERTIFICATES: Oracle Database, Linux Essentials, Python Essentials 1&2, Data Fundamentals, Introduction to Python, AI Engineer for Data Scientists Associate, Quantum Enigma.
+
+INTERESTS: Scripting, Programming, Building, Quantum Systems.
+
+GOALS: Pursuing quantum computing and AI — specifically quantum error correction, quantum algorithms, and ML+quantum intersections.
+
+If asked for contact info, give her email. If asked if she is available, say yes enthusiastically. If unsure, invite them to email her directly.`;
+
+const history = [];
+
+function addMsg(role, text, skipHistory) {
+  if (!skipHistory) history.push({ role: role === 'bot' ? 'assistant' : 'user', content: text });
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap ' + (role === 'user' ? 'user' : 'bot');
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.innerText = role === 'user' ? 'you' : 'reema.ai';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerText = text;
+  wrap.appendChild(label);
+  wrap.appendChild(bubble);
+  document.getElementById('messages').appendChild(wrap);
+  document.getElementById('messages').scrollTop = 99999;
+}
+
+function addTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap bot';
+  wrap.id = 'typing';
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.innerText = 'reema.ai';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble typing-dots';
+  bubble.innerHTML = '<span></span><span></span><span></span>';
+  wrap.appendChild(label);
+  wrap.appendChild(bubble);
+  document.getElementById('messages').appendChild(wrap);
+  document.getElementById('messages').scrollTop = 99999;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+async function callClaude(msg) {
+  if (API_KEY === 'YOUR_COHERE_API_KEY_HERE') {
+    document.getElementById('key-banner').style.display = 'block';
+    addMsg('bot', "The API key hasn't been configured yet. Open index.html and replace YOUR_COHERE_API_KEY_HERE with your Google AI key.");
+    return;
+  }
+  addTyping();
+  const msgs = history.filter(m => m.content && m.content.trim() !== '').slice(-12).map(m => ({
+    role: m.role === 'assistant' ? 'chatbot' : 'user',
+    message: m.content
+  }));
+  if (msgs.length === 0) return;
+  const lastMsg = msgs.pop();
+  try {
+    const res = await fetch('https://portfolio-ai.reema-a-otaibi.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        preamble: SYSTEM,
+        chat_history: msgs,
+        message: lastMsg.message
+      })
+    });
+    const data = await res.json();
+    removeTyping();
+    if (data.message) { addMsg('bot', 'Error: ' + data.message); return; }
+    const reply = data.text || "Sorry, something went wrong. Try again!";
+    addMsg('bot', reply);
+  } catch(e) {
+    removeTyping();
+    addMsg('bot', "Connection error: " + e.message);
+  }
+}
+
+document.getElementById('send-btn').addEventListener('click', function() {
+  const input = document.getElementById('user-input');
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = '';
+  addMsg('user', val);
+  callClaude(val);
+});
+
+document.getElementById('user-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const val = this.value.trim();
+    if (!val) return;
+    this.value = '';
+    addMsg('user', val);
+    callClaude(val);
+  }
+});
+
+document.querySelectorAll('.chip').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const msg = this.getAttribute('data-msg');
+    const display = this.innerText.replace('→ ', '');
+    addMsg('user', display);
+    callClaude(msg);
+  });
+});
+
+addMsg('bot', "Hi! I\'m Reema\'s AI Portfolio Assistant. Ask me about her and why she\'s a great addition to your team!");
+</script>
+</body>
+</html>
